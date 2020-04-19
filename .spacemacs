@@ -41,20 +41,19 @@ This function should only modify configuration layer settings."
      ;; better-defaults
      ;; Shell
      (shell :variables
-            shell-default-term-shell "/bin/zsh"
+            shell-default-term-shell "/bin/zsh" ;; find your zsh path using `$ whereis zsh`
             shell-default-height 30
             shell-default-position 'bottom)
      ;; Org mode
      (org :variables org-want-todo-bindings t)
-     ;; Typing-related
-     auto-completion
+     org-roam ;; see packages.el
      (spell-checking :variables spell-checking-enable-by-default nil)
      syntax-checking
      ;; Search-related
      helm
      deft
      ;; Language support
-     python
+     (python :variables python-sort-imports-on-save t)
      html
      rust
      emacs-lisp
@@ -218,12 +217,17 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-wilmersdorf
-                         doom-spacegrey
-                         solarized-dark
-                         solarized-light
-                         spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(
+                         doom-nord doom-nord-light
+                         doom-dracula
+                         doom-wilmersdorf
+                         doom-one doom-one-light doom-city-lights
+                         ;; solarized-dark
+                         ;; solarized-light
+                         ;; spacemacs-dark
+                         ;; spacemacs-light
+                         ;;  doom-material doom-moonlight  doom-oceanic-next doom-spacegrey
+                         )
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -239,7 +243,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-colorize-cursor-according-to-state t
 
    ;; Default font or prioritized list of fonts.
-   dotspacemacs-default-font '("Input Mono"
+   dotspacemacs-default-font '("SF Mono" ;; Input Mono
                                :size 13.0
                                :weight normal
                                :width normal)
@@ -504,34 +508,28 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-  (server-start)
-  (require 'org)
-
-  ;; Text takes up 85% of the buffer
-  (setq olivetti-body-width 0.85)
+  ;; Text takes up 80% of the buffer
+  (setq olivetti-body-width 0.80)
   ;; Starts text files (like .org .txt .md) in olivetti mode
   (add-hook 'text-mode-hook 'olivetti-mode)
 
+  ;; Deft Org files
+  (setq deft-extensions '("txt" "tex" "org"))
+  (setq deft-directory "~/org/")
+  (setq deft-recursive t)
+
   ;; Custom extension
-  (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
+  (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\|gian\\)$" . org-mode))
 
   ;; Org capture
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/notes.org" "Inbox")
+        '(("t" "Todo" entry (file+headline "~/org/captured.org" "Inbox")
            "** TODO %?\n%U")
           ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
            "**** %U\n%?")
-          ("g" "Joy" entry (file+olp+datetree "~/org/joy.org")
-           "**** %U\n%?")
-          ;; ("p" "Protocol" entry (file+headline "~/org/notes.org" "Inbox")
-          ;;  "** %^{Title}\n%U\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
-          ("l" "A link, for reading later." entry
-           (file+headline "~/org/notes.org" "Reading list")
-           "* %:description\n%u\n\n%c\n\n%i"
-           :empty-lines 1)
           )
-        ) ;; "**** %U %^{Title}\n%?")))
+        )
   (define-key global-map "\C-cc" 'org-capture)
 
   ;; Org mode definitions
@@ -558,10 +556,10 @@ before packages are loaded."
     (global-auto-revert-mode t)
 
     ;; Org high level specs
-    (setq org-default-notes-file "~/org/notes.org")
+    (setq org-archive-location "%s_archive::datetree/* Archive")
+    (setq org-default-notes-file "~/org/captured.org")
     (setq org-agenda-files (directory-files-recursively "~/org/" "\.org$"))
     (setq org-refile-targets '((org-agenda-files . (:maxlevel . 6))))
-    ;; (setq org-agenda-files (list "~/org/notes.org"))
 
     ;; Org colors
     (setq org-todo-keyword-faces
@@ -610,10 +608,10 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files (quote ("~/org/notes.org")))
+ '(org-agenda-files (quote ("/Users/gianluca/fileos/log.org")))
  '(package-selected-packages
    (quote
-    (xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain org-ql peg ov org-super-agenda map ts helm-org-rifle helm-org gnuplot evil-org yasnippet-snippets yapfify yaml-mode ws-butler writeroom-mode winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package treemacs-projectile treemacs-persp treemacs-magit treemacs-evil toml-mode toc-org tagedit symon symbol-overlay string-inflection spaceline-all-the-icons solarized-theme smeargle slim-mode scss-mode sass-mode reveal-in-osx-finder restart-emacs rainbow-delimiters racer pytest pyenv-mode py-isort pug-mode prettier-js popwin pippel pipenv pip-requirements pcre2el password-generator paradox overseer osx-trash osx-dictionary osx-clipboard org-starter org-reverse-datetree org-ref org-noter org-bullets open-junk-file olivetti nameless move-text mmm-mode markdown-toc magit-svn magit-section magit-gitflow macrostep lorem-ipsum live-py-mode link-hint launchctl indent-guide importmagic impatient-mode hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-rust flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu emmet-mode elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-themes diminish devdocs deft cython-mode company-web company-reftex company-auctex company-anaconda column-enforce-mode clean-aindent-mode centered-cursor-mode cargo blacken auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile auctex-latexmk aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
+    (org-roam emacsql-sqlite emacsql xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain org-ql peg ov org-super-agenda map ts helm-org-rifle helm-org gnuplot evil-org yasnippet-snippets yapfify yaml-mode ws-butler writeroom-mode winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package treemacs-projectile treemacs-persp treemacs-magit treemacs-evil toml-mode toc-org tagedit symon symbol-overlay string-inflection spaceline-all-the-icons solarized-theme smeargle slim-mode scss-mode sass-mode reveal-in-osx-finder restart-emacs rainbow-delimiters racer pytest pyenv-mode py-isort pug-mode prettier-js popwin pippel pipenv pip-requirements pcre2el password-generator paradox overseer osx-trash osx-dictionary osx-clipboard org-starter org-reverse-datetree org-ref org-noter org-bullets open-junk-file olivetti nameless move-text mmm-mode markdown-toc magit-svn magit-section magit-gitflow macrostep lorem-ipsum live-py-mode link-hint launchctl indent-guide importmagic impatient-mode hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-mode-manager helm-make helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-rust flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu emmet-mode elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-themes diminish devdocs deft cython-mode company-web company-reftex company-auctex company-anaconda column-enforce-mode clean-aindent-mode centered-cursor-mode cargo blacken auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile auctex-latexmk aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -621,4 +619,3 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  )
 )
-
